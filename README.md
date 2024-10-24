@@ -1,149 +1,164 @@
 # PocketBase Python SDK
 
-This Python SDK provides an easy way to interact with the PocketBase API, allowing you to manage collections, records, and authentication directly through Python.
+Welcome to the PocketBase Python SDK! This SDK simplifies the process of interacting with the PocketBase API, allowing you to manage collections, records, and authentication directly through Python.
 
-## Features
-- Authentication with PocketBase API using tokens
-- CRUD operations on records in specified collections
-- Dynamic interaction with multiple collections
-- Supports token generation using username and password
-- Optional filtering and pagination support
+## 🚀 Features
 
-## Requirements
-- Python 3.6 or higher
-- [requests](https://pypi.org/project/requests/) library for making HTTP requests
+- **Authentication:** Securely connect with the PocketBase API using tokens.
+- **CRUD Operations:** Create, read, update, and delete records in specified collections.
+- **Dynamic Collections:** Easily interact with multiple collections.
+- **Token Generation:** Generate tokens using username and password.
+- **Filtering & Pagination:** Optional support for filtering and paginating results.
+- **User Management:** Handle user verification, password resets, and email changes.
+- **OAuth2 Provider Management:** Integrate with various OAuth2 providers.
+- **Customizable Requests:** Tailor your request handling to fit your needs.
+
+## 📋 Requirements
+
+Before you begin, ensure you have the following:
+
+- Python 3.8 or higher
+- [requests](https://pypi.org/project/requests/) library
 - A valid PocketBase instance URL
-- Environment variables for configuration
 
-## Installation
+## 🔧 Installation
 
-1. Install the required dependencies using `pip`:
+Follow these steps to install the PocketBase Python SDK:
 
-```bash
-pip install requests python-dotenv
-```
+1. **Clone the repository or download the source files:**
+   ```bash
+   git clone https://github.com/itzreqle/pocketbase-python-sdk.git
+   ```
 
-2. Place the `PocketBase.py` file into your project directory.
+2. **Install required dependencies using pip:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-3. Create a `.env` file in your project root with the following environment variables:
+3. **Create a `.env` file in your project root with the following environment variables:**
+   ```
+   POCKETBASE_BASE_URL=https://your-pocketbase-instance.com
+   POCKETBASE_COLLECTION=your_collection_name
+   POCKETBASE_API_TOKEN=your_api_token
+   ```
 
-```
-POCKETBASE_BASE_URL=https://your-pocketbase-instance.com
-POCKETBASE_COLLECTION=your_collection_name
-POCKETBASE_API_TOKEN=your_api_token
-```
-
-## Usage
+## 📚 Usage
 
 ### 1. Initialize the SDK
 
-You can instantiate the `PocketBase` class by providing the PocketBase instance URL, collection name, and token. If these values are not provided, they will be loaded from the `.env` file.
+To start using the SDK, instantiate the `PocketBase` class:
 
 ```python
-from PocketBase import PocketBase
+from pocketbase import PocketBase
 
-pocketbase = PocketBase()
+pb = PocketBase()
 ```
 
-### 2. Get All Records
+### 2. Authentication
 
-Retrieve all records from the current collection. You can also filter results and paginate them.
+Authenticate users with various methods:
 
 ```python
+# Password authentication
+response = pb.auth_with_password('user@example.com', 'password123')
+
+# OAuth2 authentication
+response = pb.auth_with_oauth2_flow({'provider': 'google'})
+
+# Refresh authentication
+response = pb.refresh_auth()
+```
+
+### 3. CRUD Operations
+
+Manage your records with ease:
+
+```python
+# Get all records
 query_params = {'filter': 'status=active'}
-response = pocketbase.get_all_records(query_params, page=1, per_page=20)
-
+response = pb.list_records(query_params=query_params, page=1, per_page=20)
 print(response)
-```
 
-### 3. Get Record by ID
-
-Retrieve a specific record by its ID from the collection.
-
-```python
+# Get record by ID
 record_id = 'your-record-id'
-response = pocketbase.get_record_by_id(record_id)
-
+response = pb.get_record(record_id)
 print(response)
-```
 
-### 4. Create a New Record
-
-Add a new record to the collection by passing the data dictionary.
-
-```python
-data = {
-    'name': 'New Item',
-    'description': 'A description of the item.'
-}
-
-response = pocketbase.create_record(data)
-
+# Create a new record
+data = {'name': 'New Item', 'description': 'A description of the item.'}
+response = pb.create_record(data)
 print(response)
-```
 
-### 5. Update a Record
-
-Update an existing record by its ID with the new data.
-
-```python
+# Update a record
 record_id = 'your-record-id'
-data = {
-    'name': 'Updated Item Name'
-}
-
-response = pocketbase.update_record(record_id, data)
-
+data = {'name': 'Updated Item Name'}
+response = pb.update_record(record_id, data)
 print(response)
-```
 
-### 6. Delete a Record
-
-Delete a record from the collection by its ID.
-
-```python
+# Delete a record
 record_id = 'your-record-id'
-response = pocketbase.delete_record(record_id)
-
+response = pb.delete_record(record_id)
 print(response)
 ```
 
-### 7. Generate a Token
+### 4. User Management
 
-Generate a new token using username and password authentication.
+Manage user accounts seamlessly:
 
 ```python
+# Request email verification
+response = pb.request_verification('user@example.com')
+
+# Confirm email verification
+response = pb.confirm_verification('verification_token')
+
+# Request password reset
+response = pb.request_password_reset('user@example.com')
+
+# Confirm password reset
+response = pb.confirm_password_reset('reset_token', 'new_password', 'new_password_confirm')
+```
+
+### 5. Generate and Set Token
+
+Manage authentication tokens easily:
+
+```python
+# Generate a new token
 username = 'your-username'
 password = 'your-password'
-response = pocketbase.generate_token(username, password)
-
+response = pb.generate_token(username, password)
 print(response)
+
+# Manually set a new token
+pb.set_token('your-new-token')
 ```
 
-### 8. Set a New Token
+## ⚠️ Error Handling
 
-Manually set a new token for the SDK, for example, after generating a new token.
+All API responses are returned as dictionaries, including the status code and response data. For example:
 
 ```python
-pocketbase.set_token('your-new-token')
+{
+    'status_code': 200,
+    'data': {
+        'id': 'abc123',
+        'name': 'Item Name',
+        'created': '2023-01-01T12:00:00Z'
+    }
+}
 ```
 
-## Error Handling
+In case of errors, the SDK will return an error message along with the HTTP status code.
 
-All responses from the API are returned as tuples with the status code and the decoded JSON response.
+## 🤝 Contributing
 
-Example response:
+We welcome contributions! Feel free to submit a Pull Request to enhance the SDK.
 
-```python
-(200, {
-    'id': 'abc123',
-    'name': 'Item Name',
-    'created': '2023-01-01T12:00:00Z'
-})
-```
+## ❓ Support
 
-In case of errors, the SDK will return an error message and the HTTP status code.
+If you encounter any issues or have questions, please open an issue on the [GitHub repository](https://github.com/itzreqle/pocketbase-python-sdk/issues).
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License.
